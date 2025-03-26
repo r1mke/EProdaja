@@ -1,4 +1,5 @@
 ﻿using EProdaja.Model;
+using EProdaja.Services.Database;
 using EProdaja.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,33 +11,29 @@ namespace EProdaja.Services.Services
 {
     public class ProizvodiService : IProizvodiService
     {
-        public List<Proizvodi> lista = new List<Proizvodi>()
+
+        public EProdajaContext Context { get; set; }
+
+        public ProizvodiService(EProdajaContext context)
         {
-            new Proizvodi()
-            {
-                ProizvodId = 1,
-                Naziv = "Laptop",
-                Cijena = 1500
-            },
-            new Proizvodi()
-            {
-                ProizvodId = 2,
-                Naziv = "Mobitel",
-                Cijena = 1000
-            },
-            new Proizvodi()
-            {
-                ProizvodId = 3,
-                Naziv = "Monitor",
-                Cijena = 500
-            }
-
-        };
-
-
-        public List<Proizvodi> GetList()
+            Context = context;
+        }
+        public List<Model.Proizvodi> GetList()
         {
-            return lista;
+            var list = Context.Proizvodis.ToList();
+            var result = new List<Model.Proizvodi>();
+
+            list.ForEach(item =>
+            {
+                result.Add(new Model.Proizvodi()
+                {
+                    ProizvodId = item.ProizvodId,
+                    Cijena = item.Cijena,
+                    Naziv = item.Naziv
+                });
+            });
+
+            return result;
         }
     }
 }
