@@ -1,9 +1,11 @@
 ﻿using EProdaja.Model;
+using EProdaja.Model.Pagination;
+using EProdaja.Model.SearchObjects;
 
 namespace EProdaja.Services.Interfaces
 {
-    public interface IProizvodiService
+    public interface IProizvodiService: IService<Proizvodi, ProizvodiSearchObject>
     {
-        List<Proizvodi> GetList();
+      
     }
 }

@@ -1,8 +1,11 @@
 ﻿using EProdaja.Model;
+using EProdaja.Model.Pagination;
 using EProdaja.Model.Requests;
+using EProdaja.Model.SearchObjects;
 using EProdaja.Services.Database;
 using EProdaja.Services.Interfaces;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,38 +15,42 @@ using System.Threading.Tasks;
 
 namespace EProdaja.Services.Services
 {
-    public class KorisniciService : IKorisniciService
+    public class KorisniciService : BaseService<Model.Korisnici, KorisniciSearchObject, Database.Korisnici>, IKorisniciService
     {
 
-        public EProdajaContext Context { get; set; }
-        public IMapper Mapper { get; set; }
         public KorisniciService(EProdajaContext context, IMapper mapper)
+            : base(context, mapper) { }
+
+        public override IQueryable<Database.Korisnici> AddFilter(KorisniciSearchObject search, IQueryable<Database.Korisnici> query)
         {
-            Context = context;
-            Mapper = mapper;
-        }
-        public List<Model.Korisnici> GetList()
-        {
-            List<Model.Korisnici> result = new List<Model.Korisnici>();
+            var filteredQuery = query;
 
-            var list = Context.Korisnicis.ToList();
-            //list.ForEach(item =>
-            //{
-            //    result.Add(new Model.Korisnici()
-            //    {
-            //        KorisnikId = item.KorisnikId,
-            //        Ime = item.Ime,
-            //        Prezime = item.Prezime,
-            //        Email = item.Email,
-            //        Telefon = item.Telefon,
-            //        KorisnickoIme = item.KorisnickoIme,
-            //        Status = item.Status
-            //    });
-            //});
+            if (!string.IsNullOrWhiteSpace(search?.ImeGTE))
+            {
+                filteredQuery = filteredQuery.Where(x => x.Ime.StartsWith(search.ImeGTE));
+            }
 
+            if (!string.IsNullOrWhiteSpace(search?.PrezimeGTE))
+            {
+                filteredQuery = filteredQuery.Where(x => x.Prezime.StartsWith(search.PrezimeGTE));
+            }
 
-            result = Mapper.Map(list, result);
-            return result;
+            if (!string.IsNullOrWhiteSpace(search?.Email))
+            {
+                filteredQuery = filteredQuery.Where(x => x.Email == search.Email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search?.KorisnickoIme))
+            {
+                filteredQuery = filteredQuery.Where(x => x.KorisnickoIme == search.KorisnickoIme);
+            }
+
+            if (search.IsKorisiciUlogeIncluded == true)
+            {
+                filteredQuery = filteredQuery.Include(x => x.KorisniciUloges).ThenInclude(s => s.Uloga);
+            }
+
+            return filteredQuery;
         }
 
         public Model.Korisnici Insert(KorisniciInsertRequest request)

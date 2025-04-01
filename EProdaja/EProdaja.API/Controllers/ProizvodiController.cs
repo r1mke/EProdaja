@@ -1,4 +1,6 @@
 ﻿using EProdaja.Model;
+using EProdaja.Model.Pagination;
+using EProdaja.Model.SearchObjects;
 using EProdaja.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,19 +9,11 @@ namespace EProdaja.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProizvodiController : ControllerBase
+    public class ProizvodiController : BaseController<Model.Proizvodi,ProizvodiSearchObject>
     {
 
-        protected IProizvodiService _service;
-        public ProizvodiController(IProizvodiService service)
-        {
-            _service = service;
-        }
+        public ProizvodiController(IProizvodiService service): base(service) { }
+        
 
-        [HttpGet]
-        public List<Proizvodi> GetList()
-        {
-            return _service.GetList();
-        }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using EProdaja.Model;
+using EProdaja.Model.Pagination;
+using EProdaja.Model.SearchObjects;
 using EProdaja.Services.Database;
 using EProdaja.Services.Interfaces;
+using MapsterMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,31 +12,22 @@ using System.Threading.Tasks;
 
 namespace EProdaja.Services.Services
 {
-    public class ProizvodiService : IProizvodiService
+    public class ProizvodiService :BaseService<Model.Proizvodi,ProizvodiSearchObject, Database.Proizvodi> , IProizvodiService
     {
+         
+        public ProizvodiService(EProdajaContext context, IMapper mapper)
+            : base(context, mapper) { }
 
-        public EProdajaContext Context { get; set; }
-
-        public ProizvodiService(EProdajaContext context)
+        public override IQueryable<Database.Proizvodi> AddFilter(ProizvodiSearchObject search, IQueryable<Database.Proizvodi> query)
         {
-            Context = context;
-        }
-        public List<Model.Proizvodi> GetList()
-        {
-            var list = Context.Proizvodis.ToList();
-            var result = new List<Model.Proizvodi>();
+            var filteredQuery = query;
 
-            list.ForEach(item =>
+            if(!string.IsNullOrWhiteSpace(search?.FTS))
             {
-                result.Add(new Model.Proizvodi()
-                {
-                    ProizvodId = item.ProizvodId,
-                    Cijena = item.Cijena,
-                    Naziv = item.Naziv
-                });
-            });
+                filteredQuery = filteredQuery.Where(x=>x.Naziv.Contains(search.FTS));
+            }
 
-            return result;
+            return filteredQuery;
         }
     }
 }

@@ -1,13 +1,12 @@
 ﻿using EProdaja.Model;
+using EProdaja.Model.Pagination;
 using EProdaja.Model.Requests;
+using EProdaja.Model.SearchObjects;
 
 namespace EProdaja.Services.Interfaces
 {
-    public interface IKorisniciService
+    public interface IKorisniciService: IService<Korisnici, KorisniciSearchObject>
     {
-        List<Model.Korisnici> GetList();
-        Korisnici Insert(KorisniciInsertRequest request);
-        Korisnici Update(int id,KorisniciUpdateRequest request);
 
     }
 }
